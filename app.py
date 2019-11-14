@@ -19,6 +19,11 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = "row the boat"
 csrf.init_app(app)
 
+@app.route('/')
+def landing():
+    form = WordForm()
+    return render_template("index.html", form=form)
+
 @app.route('/index')
 def index():
     form = WordForm()
