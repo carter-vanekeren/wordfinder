@@ -11,8 +11,10 @@ class WordForm(FlaskForm):
     avail_letters = StringField("Letters", validators= [
         Regexp(r'^[a-z]+$', message="must contain letters only")
     ])
-    word_length = SelectField("Word Length", validators=[Optional()],
-    choices=[("", '--')] + [(i,i) for i in range(3,11)])
+    word_length = SelectField("Word Length", 
+    choices= [(i,i) for i in range(3,11)] + [(0, "--")],
+    default=0,
+    coerce=int)
     submit = SubmitField("Go")
 
 
@@ -34,6 +36,7 @@ def letters_2_words():
     form = WordForm()
     if form.validate_on_submit():
         letters = form.avail_letters.data
+        length = form.word_length.data
     else:
         return render_template("index.html", form=form)
 
@@ -41,14 +44,26 @@ def letters_2_words():
         good_words = set(x.strip().lower() for x in f.readlines())
 
     word_set = set()
-    for l in range(3,len(letters)+1):
-        for word in itertools.permutations(letters,l):
+    if length > 0:
+        temp = set()
+        for word in itertools.permutations(letters, length):
             w = "".join(word)
             if w in good_words:
-                word_set.add(w)
+                temp.add(w)
+        word_set = sorted(temp)
+    else:
+        temp = set()
+        temp2 = set()    
+        for l in range(3,len(letters)+1):
+            for word in itertools.permutations(letters, l):
+                w = "".join(word)
+                if w in good_words:
+                    temp.add(w)
+        temp2 = sorted(temp)
+        word_set = sorted(temp2, key=len)
 
     return render_template('wordlist.html',
-        wordlist=sorted(word_set),
+        wordlist=word_set,
         name="CS4131")
 
 
