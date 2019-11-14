@@ -8,5 +8,20 @@ main {
     text-align: center;
     border: solid white;
     margin: 3px;
+}
 
+body {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+nav {
+    background-color: lightskyblue;
+    height: 10%;
+}
+.errors{
+    list-style: none;
+}
+.error {
+    color: red;
+    font-size: .75em;
 }

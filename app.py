@@ -11,12 +11,16 @@ class WordForm(FlaskForm):
     avail_letters = StringField("Letters", validators= [
         Regexp(r'^[a-z]+$', message="must contain letters only")
     ])
-    word_length = SelectField("Word Length", 
-    choices= [(i,i) for i in range(3,11)] + [(0, "--")],
-    default=0,
-    coerce=int)
+    word_length = SelectField(
+        "Word Length", 
+        choices= [(i,i) for i in range(3,11)] + [(0, "--")],
+        default=0,
+        coerce=int
+    )
+    pattern = StringField("Pattern", validators=[
+        Regexp(r'^[a-z.]+$', message="must contain only letters and periods")
+    ])
     submit = SubmitField("Go")
-
 
 csrf = CSRFProtect()
 app = Flask(__name__)
@@ -37,6 +41,8 @@ def letters_2_words():
     if form.validate_on_submit():
         letters = form.avail_letters.data
         length = form.word_length.data
+        pattern = form.pattern.data
+        print(pattern)
     else:
         return render_template("index.html", form=form)
 
@@ -65,9 +71,6 @@ def letters_2_words():
     return render_template('wordlist.html',
         wordlist=word_set,
         name="CS4131")
-
-
-
 
 @app.route('/proxy')
 def proxy():
