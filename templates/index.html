@@ -10,6 +10,16 @@
         <br />
         {{render_field(form.pattern)}}
         <br />
+        <script>
+            if (form.invalid) {
+                document.getElementById('#invalid').style.display = 'block';
+            } else {
+                document.getElementById('#invalid').style.display = 'none';
+            }
+            
+        </script>
+        <span id="invalid" class="error">Either pattern or letters must be filled out</span>
+        <br />
         {{form.submit()}}
     </form>
 {% endblock %}

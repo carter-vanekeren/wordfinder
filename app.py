@@ -4,23 +4,37 @@ import itertools
 from flask_wtf.csrf import CSRFProtect
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField
-from wtforms.validators import Optional, Regexp
+from wtforms.validators import Optional, Regexp, ValidationError
 import re
+from flask_wtf.form import Form
 
 class WordForm(FlaskForm):
-    avail_letters = StringField("Letters", validators= [
-        Regexp(r'^[a-z]+$', message="must contain letters only")
-    ])
+    invalid = False
+    avail_letters = StringField("Letters", validators=[Regexp(r'^[a-z]+$', message="Must contain letters only"),Optional()])
+    
     word_length = SelectField(
-        "Word Length", 
+        "Word Length",
         choices= [(i,i) for i in range(3,11)] + [(0, "--")],
         default=0,
         coerce=int
     )
     pattern = StringField("Pattern", validators=[
-        Regexp(r'^[a-z.]+$', message="must contain only letters and periods")
+        Regexp(r'^[a-z.]+$', message="Must contain only letters and periods"),
+        Optional(),
     ])
     submit = SubmitField("Go")
+    def validate(self):
+        if not Form.validate(self):
+            print('Default validation failed')
+            self.invalid = False
+            return False
+        else: 
+            if not self.pattern.data and not self.avail_letters.data:
+                self.invalid = True
+                return False
+            else:
+                self.invalid = False
+                return True
 
 csrf = CSRFProtect()
 app = Flask(__name__)
@@ -38,13 +52,16 @@ def index():
 def letters_2_words():
 
     form = WordForm()
-    if form.validate_on_submit():
-        letters = form.avail_letters.data
-        length = form.word_length.data
-        pattern = form.pattern.data
-        print(pattern)
-    else:
-        return render_template("index.html", form=form)
+    if form.is_submitted():
+        if (form.validate()):
+            if form.avail_letters.data:
+                letters = form.avail_letters.data
+            else:
+                letters = ''
+            length = form.word_length.data
+            pattern = '^(' + form.pattern.data + ')'
+        else: 
+            return render_template("index.html", form=form)
 
     with open('sowpods.txt') as f:
         good_words = set(x.strip().lower() for x in f.readlines())
@@ -52,19 +69,41 @@ def letters_2_words():
     word_set = set()
     if length > 0:
         temp = set()
-        for word in itertools.permutations(letters, length):
-            w = "".join(word)
-            if w in good_words:
-                temp.add(w)
-        word_set = sorted(temp)
-    else:
-        temp = set()
-        temp2 = set()    
-        for l in range(3,len(letters)+1):
-            for word in itertools.permutations(letters, l):
+        if not letters == '':
+            for word in itertools.permutations(letters, length):
                 w = "".join(word)
                 if w in good_words:
-                    temp.add(w)
+                    if pattern:
+                        if bool(re.match(pattern, w)):
+                                temp.add(w)
+                    else: 
+                        temp.add(w)
+            word_set = sorted(temp)
+        else: 
+            for w in good_words:
+                if pattern:
+                    if bool(re.match(pattern, w)) and len(w) == length:
+                        temp.add(w)
+            word_set = sorted(temp)
+    else:
+        temp = set()
+        temp2 = set()
+        if letters == '':
+            for w in good_words:
+                if pattern:
+                    if bool(re.match(pattern, w)) and len(w) == length:
+                        temp.add(w)
+            word_set = sorted(temp)
+        else: 
+            for l in range(3,len(letters)+1):
+                for word in itertools.permutations(letters, l):
+                    w = "".join(word)
+                    if w in good_words:
+                        if pattern:
+                            if bool(re.match(pattern, w)):
+                                temp.add(w)
+                        else: 
+                            temp.add(w)
         temp2 = sorted(temp)
         word_set = sorted(temp2, key=len)
 
