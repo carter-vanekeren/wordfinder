@@ -4,22 +4,25 @@
     <h1>Word Finder</h1>
     <form action="/words" method="post">
         {{ form.hidden_tag() }}
-        {{ render_field(form.avail_letters) }}
+        <div class="form-item">
+            {{ render_field(form.avail_letters) }}
+        </div>
+        
         <br />
-        {{ render_field(form.word_length) }}
+        <div class="form-item">
+            {{ render_field(form.word_length) }}
+        </div>
+        
         <br />
-        {{render_field(form.pattern)}}
+        <div class="form-item">
+            {{render_field(form.pattern)}}
+        </div>
         <br />
-        <script>
-            if (form.invalid) {
-                document.getElementById('#invalid').style.display = 'block';
-            } else {
-                document.getElementById('#invalid').style.display = 'none';
-            }
-            
-        </script>
         <span id="invalid" class="error">Either pattern or letters must be filled out</span>
         <br />
-        {{form.submit()}}
+        <div class="submit-btn">
+            {{form.submit()}}
+        </div>
+        
     </form>
 {% endblock %}

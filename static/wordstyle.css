@@ -15,9 +15,56 @@ body {
 }
 
 nav {
-    background-color: lightskyblue;
-    height: 10%;
+    background-color: aliceblue;
+    height: 8%;
 }
+
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    height: 10%;
+    background-color: aliceblue;
+    padding-top: 2%;
+}
+
+footer a {
+    color: black;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+    cursor: pointer;
+
+}
+
+.form-item {
+    margin: 10px;
+}
+
+.form-item label{
+    margin-right: 5px;
+}
+
+#submit {
+    background-color: green;
+    color: white;
+    margin: 10px;
+    width: 40px;
+    text-align: center;
+    padding: 1%;
+    border: 1px white solid;
+    border-radius: 5px;
+}
+
+#submit:hover {
+    opacity: .7;
+    cursor: pointer;
+    border-color: lightgreen;
+}
+
 .errors{
     list-style: none;
 }
